@@ -8,7 +8,7 @@ public class Main {
     public static void main(String[] args) {
 
         while (true) {
-            System.out.println("\n===== Student Management System =====");
+            System.out.println("\n<---- Student Management System --->");
             System.out.println("1. Add Student");
             System.out.println("2. View All Students");
             System.out.println("3. Search Student by ID");
@@ -16,8 +16,7 @@ public class Main {
             System.out.println("5. Delete Student");
             System.out.println("6. Exit");
 
-            System.out.print("Enter choice: ");
-            int choice = sc.nextInt();
+            int choice = getValidInt("Enter choice: ");
 
             switch (choice) {
                 case 1:
@@ -44,10 +43,49 @@ public class Main {
         }
     }
 
-    // ADD STUDENT
+    public static int getValidInt(String message) {
+        while (true) {
+            try {
+                System.out.print(message);
+                return Integer.parseInt(sc.next());
+            } catch (Exception e) {
+                System.out.println("Invalid input! Enter a number.");
+            }
+        }
+    }
+
+    public static double getValidDouble(String message) {
+        while (true) {
+            try {
+                System.out.print(message);
+                double value = Double.parseDouble(sc.next());
+                if (value < 0) {
+                    System.out.println("Fee cannot be negative!");
+                } else {
+                    return value;
+                }
+            } catch (Exception e) {
+                System.out.println("Invalid input! Enter a valid number.");
+            }
+        }
+    }
+
+    public static String getValidString(String message) {
+        while (true) {
+            System.out.print(message);
+            String input = sc.next();
+            if (input.trim().isEmpty()) {
+                System.out.println("Input cannot be empty!");
+            } else {
+                return input;
+            }
+        }
+    }
+
     public static void addStudent() {
+
         System.out.println("Choose Type: 1-Regular 2-Scholarship 3-Exchange");
-        int type = sc.nextInt();
+        int type = getValidInt("Enter type: ");
 
         Student s;
 
@@ -59,76 +97,88 @@ public class Main {
             s = new ExchangeStudent();
         }
 
-        System.out.print("Enter ID: ");
-        s.setStudentId(sc.nextInt());
+        int id = getValidInt("Enter ID: ");
 
-        System.out.print("Enter Name: ");
-        s.setName(sc.next());
+        if (studentMap.containsKey(id)) {
+            System.out.println("ID already exists!");
+            return;
+        }
 
-        System.out.print("Enter Course: ");
-        s.setCourse(sc.next());
+        s.setStudentId(id);
+        s.setName(getValidString("Enter Name: "));
+        s.setCourse(getValidString("Enter Course: "));
+        s.setBaseFee(getValidDouble("Enter Base Fee: "));
 
-        System.out.print("Enter Base Fee: ");
-        s.setBaseFee(sc.nextDouble());
+        studentMap.put(id, s);
 
-        studentMap.put(s.getStudentId(), s);
         System.out.println("Student Added Successfully!");
     }
 
-    // DISPLAY
     public static void displayStudents() {
+
         if (studentMap.isEmpty()) {
             System.out.println("No students found!");
             return;
         }
 
+        System.out.println("\n--------------------------------------------------------------");
+        System.out.printf("%-5s %-10s %-10s %-15s %-10s\n",
+                "ID", "Name", "Course", "Type", "Fee");
+        System.out.println("--------------------------------------------------------------");
+
         for (Student s : studentMap.values()) {
-            System.out.println("\nID: " + s.getStudentId());
-            System.out.println("Name: " + s.getName());
-            System.out.println("Course: " + s.getCourse());
-            System.out.println("Final Fee: " + s.calculateFee());
+
+            String type;
+
+            if (s instanceof RegularStudent) {
+                type = "Regular";
+            } else if (s instanceof ScholarshipStudent) {
+                type = "Scholarship";
+            } else {
+                type = "Exchange";
+            }
+
+            System.out.printf("%-5d %-10s %-10s %-15s %-10.2f\n",
+                    s.getStudentId(),
+                    s.getName(),
+                    s.getCourse(),
+                    type,
+                    s.calculateFee());
         }
+
+        System.out.println("--------------------------------------------------------------");
     }
 
-    // SEARCH
     public static void searchStudent() {
-        System.out.print("Enter ID to search: ");
-        int id = sc.nextInt();
+        int id = getValidInt("Enter ID to search: ");
 
         Student s = studentMap.get(id);
 
         if (s != null) {
             System.out.println("Name: " + s.getName());
+            System.out.println("Course: " + s.getCourse());
             System.out.println("Fee: " + s.calculateFee());
         } else {
             System.out.println("Student not found!");
         }
     }
 
-    // UPDATE
     public static void updateStudent() {
-        System.out.print("Enter ID to update: ");
-        int id = sc.nextInt();
+        int id = getValidInt("Enter ID to update: ");
 
         Student s = studentMap.get(id);
 
         if (s != null) {
-            System.out.print("Enter new name: ");
-            s.setName(sc.next());
-
-            System.out.print("Enter new course: ");
-            s.setCourse(sc.next());
-
+            s.setName(getValidString("Enter new name: "));
+            s.setCourse(getValidString("Enter new course: "));
             System.out.println("Updated Successfully!");
         } else {
             System.out.println("Student not found!");
         }
     }
 
-    // DELETE
     public static void deleteStudent() {
-        System.out.print("Enter ID to delete: ");
-        int id = sc.nextInt();
+        int id = getValidInt("Enter ID to delete: ");
 
         if (studentMap.remove(id) != null) {
             System.out.println("Deleted Successfully!");
